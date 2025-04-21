@@ -1,9 +1,40 @@
 import requests
 import json
+import os
+from urllib.parse import quote
 
-# ---------------- search ----------------
+# -------------- helpers --------------
+
+def build_download_url(file_id: int, file_name: str) -> str:
+    # forge cdn pattern -> files/<id//1000>/<id%1000 padded>/<encoded filename>
+    dir1 = file_id // 1000
+    dir2 = f"{file_id % 1000:03d}"
+    encoded = quote(file_name)
+    return f"https://mediafilez.forgecdn.net/files/{dir1}/{dir2}/{encoded}"
+
+
+def download_file(file_id: int, file_name: str, dest_folder: str = ".") -> None:
+    # stream download to disk
+    url = build_download_url(file_id, file_name)
+    path = os.path.join(dest_folder, file_name)
+
+    print(f"downloading {file_name} -> {path}")
+    print(f"cdn url: {url}")
+
+    try:
+        with requests.get(url, stream=True, timeout=60) as r:
+            r.raise_for_status()
+            with open(path, "wb") as fh:
+                for chunk in r.iter_content(chunk_size=8192):
+                    if chunk:
+                        fh.write(chunk)
+        print("download complete")
+    except Exception as e:
+        print(f"error downloading file: {e}")
+
+# -------------- search --------------
+
 def return_search_results(query: str) -> dict | None:
-    # build search url
     url = (
         "https://www.curseforge.com/api/v1/mods/search"
         f"?gameId=432&index=0&classId=4471"
@@ -20,10 +51,9 @@ def return_search_results(query: str) -> dict | None:
         print(f"error fetching search results: {e}")
         return None
 
+# -------------- files list --------------
 
-# ---------------- files list for a project ----------------
 def get_files_list(project_id: int) -> dict | None:
-    # fetch list of files for a modpack
     url = f"https://www.curseforge.com/api/v1/mods/{project_id}/files"
     headers = {"accept": "application/json"}
 
@@ -35,14 +65,10 @@ def get_files_list(project_id: int) -> dict | None:
         print(f"error fetching files list: {e}")
         return None
 
+# -------------- additional files / server packs --------------
 
-# ---------------- additional files (server packs) ----------------
 def get_additional_files(project_id: int, file_id: int) -> dict | None:
-    # fetch server packs etc
-    url = (
-        f"https://www.curseforge.com/api/v1/mods/"
-        f"{project_id}/files/{file_id}/additional-files"
-    )
+    url = f"https://www.curseforge.com/api/v1/mods/{project_id}/files/{file_id}/additional-files"
     headers = {"accept": "application/json"}
 
     try:
@@ -53,12 +79,11 @@ def get_additional_files(project_id: int, file_id: int) -> dict | None:
         print(f"error fetching additional files: {e}")
         return None
 
+# -------------- list helper --------------
 
-# ---------------- pretty list helper ----------------
 def choose_from_list(items, label_key, id_key):
-    # print list and return chosen item or None
-    for idx, item in enumerate(items):
-        print(f"[{idx}] {item[label_key]} [{item[id_key]}]")
+    for idx, itm in enumerate(items):
+        print(f"[{idx}] {itm[label_key]} [{itm[id_key]}]")
     choice = input("select index: ")
     try:
         i = int(choice)
@@ -69,8 +94,8 @@ def choose_from_list(items, label_key, id_key):
     print("invalid selection")
     return None
 
+# -------------- main flow --------------
 
-# ---------------- main flow ----------------
 def main():
     query = input("search curseforge for: ")
     search_res = return_search_results(query)
@@ -92,7 +117,9 @@ def main():
     if not chosen_file:
         return
 
-    file_id = chosen_file["id"]
+    file_id     = chosen_file["id"]
+    file_name   = chosen_file["fileName"]
+
     if chosen_file.get("hasServerPack"):
         mode = input("download normal (n) or server pack (s)? ").lower().strip()
         if mode == "s":
@@ -105,11 +132,11 @@ def main():
             if not chosen_sp:
                 return
             print(f"downloading server pack {chosen_sp['fileName']}")
+            download_file(chosen_sp["id"], chosen_sp["fileName"])
             return
 
-    # default normal download
-    print(f"downloading {chosen_file['fileName']}")
-
+    # default: download normal client zip
+    download_file(file_id, file_name)
 
 if __name__ == "__main__":
     main()
