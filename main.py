@@ -20,7 +20,7 @@ def download_file(file_id: int, file_name: str, dest_folder: str = ".") -> None:
     os.makedirs(dest_folder, exist_ok=True)
 
     print(f"downloading {file_name} -> {path}")
-    print(f"cdn url: {url}")
+    # print(f"cdn url: {url}")
 
     try:
         with requests.get(url, stream=True, timeout=60) as r:
@@ -64,7 +64,7 @@ def return_search_results(query: str) -> dict | None:
 
 
 def get_files_list(project_id: int) -> dict | None:
-    url = f"https://www.curseforge.com/api/v1/mods/{project_id}/files"
+    url = f"https://www.curseforge.com/api/v1/mods/{project_id}/files?pageSize=50"
     headers = {"accept": "application/json"}
 
     try:
@@ -95,14 +95,17 @@ def choose_from_list(items, label_key, id_key):
         return None
     for idx, itm in enumerate(items):
         # Format index with leading zero padding to 2 digits (:02d)
-        print(f"[{idx:02d}] {itm.get(label_key, 'n/a')} [id: {itm.get(id_key, 'n/a')}]")
+        print(f"[{idx:02d}] {itm.get(label_key, 'n/a')}")
     while True:
-        choice = input("select index: ")
+        choice = input("> select index: ")
         try:
             # int() naturally handles inputs like "07" -> 7 or "7" -> 7
             i = int(choice)
             if 0 <= i < len(items):
-                return items[i]
+                selected_item = items[i]
+                os.system("cls" if os.name == "nt" else "clear")
+                print(f"selected: {selected_item.get(label_key, 'n/a')}")
+                return selected_item
             else:
                  print(f"invalid index. please enter a number between 0 and {len(items)-1}.")
         except ValueError:
@@ -110,6 +113,7 @@ def choose_from_list(items, label_key, id_key):
 
 
 def main():
+    os.system("cls" if os.name == "nt" else "clear")
     parser = argparse.ArgumentParser(description="download modpacks from curseforge.")
     parser.add_argument("-s", "--search", help="modpack search query (skips interactive search)")
     parser.add_argument("-o", "--output", default=".", help="output directory for downloaded files (default: current directory)")
@@ -152,12 +156,12 @@ def main():
                 print("falling back to normal download...")
                 download_file(file_id, file_name, output_dir)
                 return
-            print("server files available:")
             if len(add_res["data"]) > 1:
+                 print("server files available:")
                  chosen_sp = choose_from_list(add_res["data"], "displayName", "id")
             elif len(add_res["data"]) == 1:
                  chosen_sp = add_res["data"][0]
-                 print(f"selected: {chosen_sp['displayName']}")
+                 print(f"only one option: {chosen_sp['displayName']}")
             else:
                  print("no valid server pack data found.")
                  return
