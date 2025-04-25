@@ -21,23 +21,23 @@ Copy, paste and run this command:
 ```bash
 git clone https://github.com/nocdn/curseforge-modpack-downloader \
 && cd curseforge-modpack-downloader \
-&& python3 -m venv .venv \
-&& source .venv/bin/activate \
+&& python3 -m venv curseforge \
+&& source curseforge/bin/activate \
 && pip install requests \
-&& python main.py
+&& clear \
+&& python main.py ; deactivate
 ```
 
 Explanation of the commands:
 
 - `git clone https://github.com/nocdn/curseforge-modpack-downloader`: Clones the repository from GitHub.
 - `cd curseforge-modpack-downloader`: Changes the directory to the cloned repository.
-- `python3 -m venv .venv`: Creates a virtual environment named `.venv`.
-- `source .venv/bin/activate`: Activates the virtual environment.
+- `python3 -m venv curseforge`: Creates a virtual environment named `curseforge`.
+- `source curseforge/bin/activate`: Activates the virtual environment.
 - `pip install requests`: Installs the `requests` library.
-- `python main.py`: Runs the main script.
+- `python main.py ; deactivate`: Runs the `main.py` script and deactivates the virtual environment after it finishes.
 
-All of these are chained with the `&&` operator to ensure that each command is executed sequentially after the previous one completes successfully.
-
+All of these are chained with the `&&` operator to ensure that each command is executed sequentially after the previous one completes successfully, except for the last two, combined with the `;` operator to execute the deactivation command regardless of the success or failure of the main script.
 
 ### License
 

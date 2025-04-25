@@ -13,12 +13,13 @@ def build_download_url(file_id: int, file_name: str) -> str:
     return f"https://mediafilez.forgecdn.net/files/{dir1}/{dir2}/{encoded}"
 
 
-def download_file(file_id: int, file_name: str, dest_folder: str = ".") -> None:
+def download_file(file_id: int, file_name: str, dest_folder: str = "..") -> None:
     # stream download to disk
     url = build_download_url(file_id, file_name)
+    # THIS IS THE KEY CHANGE: os.path.join("..", file_name) will resolve correctly
     path = os.path.join(dest_folder, file_name)
 
-    print(f"downloading {file_name} -> {path}")
+    print(f"downloading {file_name} -> {path}") # Path will now show the parent directory
     print(f"cdn url: {url}")
 
     try:
