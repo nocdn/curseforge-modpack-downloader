@@ -44,6 +44,19 @@ Explanation of the commands:
 
 All of these are chained with the `&&` operator to ensure that each command is executed sequentially after the previous one completes successfully, except for the last two, combined with the `;` operator to execute the deactivation command regardless of the success or failure of the main script.
 
+##### Possible command line arguments
+
+- `-s`, `--search`: Search query for modpacks. If not provided, the script will prompt you for a search query.
+- `-o`, `--output`: Output directory for downloaded files. Defaults to the current directory.
+
+####### Example usage
+
+```bash
+python main.py -s "all the mods 10" -o "/home/ubuntu/modpacks/"
+```
+
+This command will search for modpacks with the name "all the mods 10", let the user pick the version, server or client, etc and download the selected files to the specified output directory.
+
 ### License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
