@@ -3,7 +3,6 @@ import json
 import os
 from urllib.parse import quote
 
-# -------------- helpers --------------
 
 def build_download_url(file_id: int, file_name: str) -> str:
     # forge cdn pattern -> files/<id//1000>/<id%1000 padded>/<encoded filename>
@@ -29,11 +28,10 @@ def download_file(file_id: int, file_name: str, dest_folder: str = "..") -> None
                 for chunk in r.iter_content(chunk_size=8192):
                     if chunk:
                         fh.write(chunk)
-        print("download complete")
+        print("download complete\nyou can now remove the directory this script is in")
     except Exception as e:
         print(f"error downloading file: {e}")
 
-# -------------- search --------------
 
 def return_search_results(query: str) -> dict | None:
     url = (
@@ -52,7 +50,6 @@ def return_search_results(query: str) -> dict | None:
         print(f"error fetching search results: {e}")
         return None
 
-# -------------- files list --------------
 
 def get_files_list(project_id: int) -> dict | None:
     url = f"https://www.curseforge.com/api/v1/mods/{project_id}/files"
@@ -66,7 +63,6 @@ def get_files_list(project_id: int) -> dict | None:
         print(f"error fetching files list: {e}")
         return None
 
-# -------------- additional files / server packs --------------
 
 def get_additional_files(project_id: int, file_id: int) -> dict | None:
     url = f"https://www.curseforge.com/api/v1/mods/{project_id}/files/{file_id}/additional-files"
@@ -80,7 +76,6 @@ def get_additional_files(project_id: int, file_id: int) -> dict | None:
         print(f"error fetching additional files: {e}")
         return None
 
-# -------------- list helper --------------
 
 def choose_from_list(items, label_key, id_key):
     for idx, itm in enumerate(items):
@@ -95,7 +90,6 @@ def choose_from_list(items, label_key, id_key):
     print("invalid selection")
     return None
 
-# -------------- main flow --------------
 
 def main():
     query = input("search curseforge for: ")
