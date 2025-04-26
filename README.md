@@ -24,7 +24,7 @@ git clone https://github.com/nocdn/curseforge-modpack-downloader && \
     cd curseforge-modpack-downloader && \
     python3 -m venv curseforge && \
     source curseforge/bin/activate && \
-    pip install requests && \
+    pip install requests tqdm && \
     clear && \
     python main.py ; \
     deactivate \
@@ -49,7 +49,7 @@ All of these are chained with the `&&` operator to ensure that each command is e
 - `-s`, `--search`: Search query for modpacks. If not provided, the script will prompt you for a search query.
 - `-o`, `--output`: Output directory for downloaded files. Defaults to the current directory.
 
-####### Example usage
+###### Example usage
 
 ```bash
 python main.py -s "all the mods 10" -o "/home/ubuntu/modpacks/"
